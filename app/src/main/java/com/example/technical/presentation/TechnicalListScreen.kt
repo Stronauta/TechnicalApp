@@ -33,12 +33,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.technical.data.local.entities.TechnicalEntity
+import com.example.technical.ui.theme.TechnicalTheme
+
+@Composable
+fun TechnicalListScreen(
+    viewModel: TecnicoViewModel,
+    onTechnicalClickVer: (TechnicalEntity) -> Unit,
+    onTechnicalDelete: (TechnicalEntity) -> Unit
+){
+    val technical by viewModel.technicals.collectAsStateWithLifecycle()
+    TechnicalListBody(
+        technical = technical,
+        onTechnicalClickVer = onTechnicalClickVer,
+        onTechnicalDelete = onTechnicalDelete
+    )
+}
 
 
 @Composable
-fun TechnicalList(
+fun TechnicalListBody(
     technical: List<TechnicalEntity>,
     onTechnicalClickVer: (TechnicalEntity) -> Unit,
     onTechnicalDelete: (TechnicalEntity) -> Unit
@@ -154,7 +171,23 @@ fun TechnicalList(
     }
 }
 
-
+@Preview
+@Composable
+fun TechnicalListPreview(){
+    val technical = listOf(
+        TechnicalEntity(
+            tecnicoId = 1,
+            tecnicoName = "Samir",
+            monto = 1000.0
+        )
+    )
+    TechnicalTheme{
+        TechnicalListBody(technical = technical,
+            onTechnicalClickVer = {}
+            ,onTechnicalDelete = {}
+        )
+    }
+}
 
 
 
