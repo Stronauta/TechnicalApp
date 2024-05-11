@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 
 import com.example.technical.data.local.entities.TechnicalEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TecnicoDao {
@@ -27,7 +28,7 @@ interface TecnicoDao {
     suspend fun delete(technicalEntity: TechnicalEntity)
 
     @Query("SELECT * FROM Tecnico")
-    suspend fun findAll(): List<TechnicalEntity>
+    fun findAll(): Flow<List<TechnicalEntity>>
 
     @Query("SELECT * FROM Tecnico WHERE tecnicoName=:name LIMIT 1")
     suspend fun findByName(name: String): TechnicalEntity?
