@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,13 +44,13 @@ import com.example.technical.ui.theme.TechnicalTheme
 fun TechnicalListScreen(
     viewModel: TecnicoViewModel,
     onTechnicalClickVer: (TechnicalEntity) -> Unit,
-    onTechnicalDelete: (TechnicalEntity) -> Unit
+   // onTechnicalDelete: (TechnicalEntity) -> Unit
 ){
     val technical by viewModel.technicals.collectAsStateWithLifecycle()
     TechnicalListBody(
         technical = technical,
-        onTechnicalClickVer = onTechnicalClickVer,
-        onTechnicalDelete = onTechnicalDelete
+        onTechnicalClickVer = onTechnicalClickVer
+       // onTechnicalDelete = onTechnicalDelete
     )
 }
 
@@ -58,7 +59,7 @@ fun TechnicalListScreen(
 fun TechnicalListBody(
     technical: List<TechnicalEntity>,
     onTechnicalClickVer: (TechnicalEntity) -> Unit,
-    onTechnicalDelete: (TechnicalEntity) -> Unit
+    //onTechnicalDelete: (TechnicalEntity) -> Unit
 ){
     val context = LocalContext.current
 
@@ -70,6 +71,28 @@ fun TechnicalListBody(
             .fillMaxSize()
             .padding(4.dp)
     ) {
+        Row {
+            Text(
+                text = "#",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.weight(0.100f)
+            )
+
+            Text(
+                text = "Nombre",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.weight(0.25f)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Sueldo por Hora",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.weight(0.40f)
+            )
+        }
+
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -134,23 +157,23 @@ fun TechnicalListBody(
                         Spacer(modifier = Modifier.width(8.dp))
 
                         Text(
-                            "Eliminar Tecnico",
+                            "Eliminar Técnico",
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
                 },
                 text = {
                     Text(
-                        "¿Estás seguro de eliminar esta contribución?",
+                        "¿Esta seguro de eliminar el técnico ?",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            onTechnicalDelete(technicalDelete!!)
+                           // onTechnicalDelete(technicalDelete!!)
                             showDialog = false
-                            Toast.makeText(context, "Tecnico eliminad0", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Técnico eliminado", Toast.LENGTH_SHORT).show()
                         },
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = Color.Red
@@ -184,7 +207,7 @@ fun TechnicalListPreview(){
     TechnicalTheme{
         TechnicalListBody(technical = technical,
             onTechnicalClickVer = {}
-            ,onTechnicalDelete = {}
+           // ,onTechnicalDelete = {}
         )
     }
 }

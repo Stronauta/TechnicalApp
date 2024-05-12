@@ -62,6 +62,10 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit){
         return technicalName.isNotEmpty() && monto > 0.0
     }
 
+    fun validarNombreDuplicado(): Boolean{
+        return technicalName.any { it.equals(technicalName) }
+    }
+
     ElevatedCard(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -90,7 +94,7 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit){
 
             OutlinedTextField(
                 maxLines = 1,
-                label = { Text("Monto") },
+                label = { Text("Sueldo") },
                 value = monto.toString(),
                 onValueChange = { newValue ->
                     val newText = newValue.takeIf { it.matches(Regex("""^\d{0,5}(\.\d{0,2})?$""")) } ?: monto.toString()
@@ -136,21 +140,23 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit){
                 OutlinedButton(
                     onClick = {
                         if (validateInput()) {
-                            onSaveTechnical(
-                                TechnicalEntity(
-                                    tecnicoId = technicalId.toIntOrNull(),
-                                    tecnicoName = technicalName,
-                                    monto = monto,
-
+                            if (validarNombreDuplicado()) {
+                                onSaveTechnical(
+                                    TechnicalEntity(
+                                        tecnicoId = technicalId.toIntOrNull(),
+                                        tecnicoName = technicalName,
+                                        monto = monto
+                                    )
                                 )
-                            )
-                            technicalId = ""
-                            technicalName = ""
-                            monto = 0.0
+                                technicalId = ""
+                                technicalName = ""
+                                monto = 0.0
 
-                            Toast.makeText(context, "Datos guardados", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Datos guardados", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "¡Ya existe un técnico con ese nombre!", Toast.LENGTH_SHORT).show()
+                            }
                         } else {
-
                             Toast.makeText(context, "Ingrese los datos correctamente", Toast.LENGTH_SHORT).show()
                         }
                     }

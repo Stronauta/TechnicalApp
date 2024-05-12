@@ -9,4 +9,6 @@ class TechnicalRepository(private val technicalDao: TecnicoDao) {
 
     fun getTecnico() = technicalDao.findAll()
 
+    suspend fun deleteTecnico(tecnico: TechnicalEntity) = technicalDao.delete(tecnico)
+
 }
