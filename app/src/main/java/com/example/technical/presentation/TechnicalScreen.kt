@@ -12,10 +12,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -25,12 +25,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
+
+import androidx.compose.ui.res.painterResource
+import com.example.technical.R
 
 import com.example.technical.data.local.entities.TechnicalEntity
 import com.example.technical.ui.theme.TechnicalTheme
@@ -48,15 +54,19 @@ fun TechnicalScreen(
     )
 }
 
+
 @Composable
-fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit){
+fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit) {
 
     var technicalId by remember { mutableStateOf("") }
     var technicalName by remember { mutableStateOf("") }
     var monto by remember { mutableStateOf(0.0) }
 
-    val context = LocalContext.current
+    var showError by remember { mutableStateOf(false) } // Estado para indicar si se debe mostrar errores
+    val isNameError = showError && (technicalName.isBlank() || technicalName.any { it.isDigit() })
+    val isMontoError = showError && (monto <= 0.0)
 
+    val context = LocalContext.current
 
     fun validateInput(): Boolean{
         return technicalName.isNotEmpty() && monto > 0.0
@@ -85,10 +95,20 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit){
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = "person"
+                        contentDescription = "person",
+                        tint = if (isNameError) Color.Red else Color.Gray
                     )
-                }
+                },
+                isError = isNameError
             )
+            if (isNameError) {
+                Text(
+                    text = "El nombre es obligatorio",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -102,16 +122,23 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit){
                 },
                 trailingIcon = {
                     Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Money"
+                        painter = painterResource(id = R.drawable.icons8_moneda_90),
+                        contentDescription = "moneda",
+                        tint = if (isMontoError) Color.Red else Color.Gray
                     )
-
                 },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                isError = isMontoError
             )
-
-
+            if (isMontoError) {
+                Text(
+                    text = "El sueldo debe ser mayor a 0",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(15.dp))
 
@@ -119,22 +146,24 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit){
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-
                 OutlinedButton(
                     onClick = {
-                        if (technicalName.isNotEmpty() || monto > 0.0 ) {
+                        showError = false
+                        if (technicalName.isNotEmpty() || monto > 0.0) {
                             technicalName = ""
                             monto = 0.0
 
                             Toast.makeText(context, "Datos limpiados", Toast.LENGTH_SHORT).show()
                         }
                     }
-                ) {
+                )
+                {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "new button"
                     )
                     Text(text = "Nuevo")
+
                 }
 
                 OutlinedButton(
@@ -153,11 +182,14 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit){
                                 monto = 0.0
 
                                 Toast.makeText(context, "Datos guardados", Toast.LENGTH_SHORT).show()
+                                showError = false
                             } else {
                                 Toast.makeText(context, "¡Ya existe un técnico con ese nombre!", Toast.LENGTH_SHORT).show()
+                                showError = true
                             }
                         } else {
                             Toast.makeText(context, "Ingrese los datos correctamente", Toast.LENGTH_SHORT).show()
+                            showError = true
                         }
                     }
                 ) {
