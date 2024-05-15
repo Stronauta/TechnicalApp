@@ -26,15 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-
-
 import androidx.compose.ui.res.painterResource
 import com.example.technical.R
 
@@ -48,6 +45,7 @@ fun TechnicalScreen(
 ){
     val tecnicos by viewModel.technicals.collectAsStateWithLifecycle()
     TechnicalBody(
+        technicals = tecnicos,
         onSaveTechnical = {
             viewModel.saveTechnical(it)
         }
@@ -56,24 +54,29 @@ fun TechnicalScreen(
 
 
 @Composable
-fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit) {
+fun TechnicalBody(
+    technicals: List<TechnicalEntity>,
+    onSaveTechnical: (TechnicalEntity) -> Unit
+) {
 
     var technicalId by remember { mutableStateOf("") }
     var technicalName by remember { mutableStateOf("") }
     var monto by remember { mutableStateOf(0.0) }
 
-    var showError by remember { mutableStateOf(false) } // Estado para indicar si se debe mostrar errores
-    val isNameError = showError && (technicalName.isBlank() || technicalName.any { it.isDigit() })
+    var showError by remember { mutableStateOf(false) }
+    var isTecnicoNameError by remember { mutableStateOf(false) }
+
+    val isNameError = showError && (technicalName.isBlank() || technicalName.any { it.isDigit() }) || isTecnicoNameError
     val isMontoError = showError && (monto <= 0.0)
 
     val context = LocalContext.current
 
-    fun validateInput(): Boolean{
+    fun validateInput(): Boolean {
         return technicalName.isNotEmpty() && monto > 0.0
     }
 
-    fun validarNombreDuplicado(): Boolean{
-        return technicalName.any { it.equals(technicalName) }
+    fun validarNombreDuplicado(): Boolean {
+        return technicals.any { it.tecnicoName.equals(technicalName, ignoreCase = true) }
     }
 
     ElevatedCard(
@@ -90,6 +93,7 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit) {
                 onValueChange = { name ->
                     val filtrarName = name.take(30).filter { it.isLetter() || it.isWhitespace() }
                     technicalName = filtrarName
+                    isTecnicoNameError = validarNombreDuplicado()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
@@ -103,7 +107,7 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit) {
             )
             if (isNameError) {
                 Text(
-                    text = "El nombre es obligatorio",
+                    text = if (isTecnicoNameError) "El técnico $technicalName ya esta existe" else "El nombre es obligatorio",
                     color = Color.Red,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(start = 16.dp)
@@ -123,7 +127,7 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit) {
                 trailingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.icons8_moneda_90),
-                        contentDescription = "moneda",
+                        contentDescription = "money",
                         tint = if (isMontoError) Color.Red else Color.Gray
                     )
                 },
@@ -131,6 +135,7 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit) {
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                 isError = isMontoError
             )
+
             if (isMontoError) {
                 Text(
                     text = "El sueldo debe ser mayor a 0",
@@ -149,6 +154,7 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit) {
                 OutlinedButton(
                     onClick = {
                         showError = false
+                        isTecnicoNameError = false
                         if (technicalName.isNotEmpty() || monto > 0.0) {
                             technicalName = ""
                             monto = 0.0
@@ -156,40 +162,39 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit) {
                             Toast.makeText(context, "Datos limpiados", Toast.LENGTH_SHORT).show()
                         }
                     }
-                )
-                {
+                ) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "new button"
                     )
                     Text(text = "Nuevo")
-
                 }
 
                 OutlinedButton(
                     onClick = {
-                        if (validateInput()) {
-                            if (validarNombreDuplicado()) {
-                                onSaveTechnical(
-                                    TechnicalEntity(
-                                        tecnicoId = technicalId.toIntOrNull(),
-                                        tecnicoName = technicalName,
-                                        monto = monto
-                                    )
+                        showError = true
+                        isTecnicoNameError = validarNombreDuplicado()
+                        if (validateInput() && !isTecnicoNameError) {
+                            onSaveTechnical(
+                                TechnicalEntity(
+                                    tecnicoId = technicalId.toIntOrNull(),
+                                    tecnicoName = technicalName,
+                                    monto = monto
                                 )
-                                technicalId = ""
-                                technicalName = ""
-                                monto = 0.0
+                            )
+                            technicalId = ""
+                            technicalName = ""
+                            monto = 0.0
 
-                                Toast.makeText(context, "Datos guardados", Toast.LENGTH_SHORT).show()
-                                showError = false
-                            } else {
-                                Toast.makeText(context, "¡Ya existe un técnico con ese nombre!", Toast.LENGTH_SHORT).show()
-                                showError = true
-                            }
+                            Toast.makeText(context, "Datos guardados", Toast.LENGTH_SHORT).show()
+                            showError = false
+                            isTecnicoNameError = false
                         } else {
-                            Toast.makeText(context, "Ingrese los datos correctamente", Toast.LENGTH_SHORT).show()
-                            showError = true
+                            if (isTecnicoNameError) {
+                                Toast.makeText(context, "¡Ya existe un técnico con ese nombre!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "Ingrese los datos correctamente", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 ) {
@@ -205,11 +210,14 @@ fun TechnicalBody(onSaveTechnical: (TechnicalEntity) -> Unit) {
 }
 
 
+
 @Preview
 @Composable
 private fun TecnicoBodyPreview(){
     TechnicalTheme{
-        TechnicalBody() {
+        TechnicalBody(
+            technicals = emptyList(),
+        ) {
 
         }
     }

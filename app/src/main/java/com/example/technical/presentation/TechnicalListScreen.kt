@@ -54,7 +54,6 @@ fun TechnicalListScreen(
     )
 }
 
-
 @Composable
 fun TechnicalListBody(
     technical: List<TechnicalEntity>,
@@ -71,26 +70,29 @@ fun TechnicalListBody(
             .fillMaxSize()
             .padding(4.dp)
     ) {
-        Row {
-            Text(
-                text = "#",
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.weight(0.100f)
-            )
 
-            Text(
-                text = "Nombre",
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.weight(0.25f)
-            )
+        if(technical.isNotEmpty()){
+            Row {
+                Text(
+                    text = "#",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.weight(0.100f)
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Nombre",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.weight(0.25f)
+                )
 
-            Text(
-                text = "Sueldo por Hora",
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.weight(0.40f)
-            )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Sueldo por Hora",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.weight(0.40f)
+                )
+            }
         }
 
         LazyColumn(
@@ -193,6 +195,7 @@ fun TechnicalListBody(
         }
     }
 }
+
 
 @Preview
 @Composable
