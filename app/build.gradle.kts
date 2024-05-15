@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
+    kotlin("plugin.serialization") version "1.9.24"
 
 }
 
@@ -67,6 +68,7 @@ dependencies {
 
     //navegacion
     implementation("androidx.navigation:navigation-compose:2.7.7")
+
 
     //Room
     implementation("androidx.room:room-runtime:2.6.1")
