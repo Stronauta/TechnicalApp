@@ -14,6 +14,7 @@ import androidx.navigation.toRoute
 import androidx.room.Room
 import com.example.technical.ui.theme.TechnicalTheme
 import com.example.technical.data.local.database.TecnicoDatabase
+import com.example.technical.data.local.database.tiposTecnicoDatabase
 import com.example.technical.data.repository.TechnicalRepository
 import com.example.technical.presentation.TechnicalListScreen
 import com.example.technical.presentation.TecnicoViewModel
@@ -23,6 +24,7 @@ import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
     private lateinit var tecnicoDb: TecnicoDatabase
+    private lateinit var tipDb: tiposTecnicoDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +33,14 @@ class MainActivity : ComponentActivity() {
             this,
             TecnicoDatabase::class.java,
             "Tecnicos.db"
+        )
+            .fallbackToDestructiveMigration()
+            .build()
+
+        tipDb = Room.databaseBuilder(
+            this,
+            tiposTecnicoDatabase::class.java,
+            "tiposTecnicos.db"
         )
             .fallbackToDestructiveMigration()
             .build()
