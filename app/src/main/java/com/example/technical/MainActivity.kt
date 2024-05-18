@@ -4,28 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import androidx.room.Room
 import com.example.technical.ui.theme.TechnicalTheme
 import com.example.technical.data.local.database.TecnicoDatabase
-import com.example.technical.data.local.entities.TechnicalEntity
 import com.example.technical.data.repository.TechnicalRepository
-import com.example.technical.presentation.TechnicalListBody
 import com.example.technical.presentation.TechnicalListScreen
-import com.example.technical.presentation.TechnicalScreen
 import com.example.technical.presentation.TecnicoViewModel
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
+import com.example.technical.presentation.TechnicalScreen
+import kotlinx.serialization.Serializable
 
 
 class MainActivity : ComponentActivity() {
@@ -46,39 +39,68 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TechnicalTheme {
-                Surface {
-                    val viewModel: TecnicoViewModel = viewModel(
-                        factory = TecnicoViewModel.provideFactory(repository)
-                    )
-                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                var navController = rememberNavController()
+                NavHost(navController = navController, startDestination = Screen.TechnicalListScreen) {
 
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
-                                .padding(8.dp)
-                        ){
-                            Text(
-                                text = "Tecnicos",
-                                style = MaterialTheme.typography.headlineLarge,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-
-
-                            TechnicalScreen(viewModel = viewModel)
-                            TechnicalListScreen(viewModel = viewModel,
-                                onTechnicalClickVer = {}
-                            )
-
-                        }
-
+                    composable<Screen.TechnicalListScreen>{
+                        TechnicalListScreen(
+                            viewModel = viewModel { TecnicoViewModel(repository, 0) },
+                            onTechnicalClickVer = {
+                                navController.navigate(Screen.Tecnico(it.tecnicoId ?: 0))
+                            }
+                        )
 
                     }
                 }
+                /* Surface {
+                     val viewModel: TecnicoViewModel = viewModel(
+                         factory = TecnicoViewModel.provideFactory(repository)
+                     )
+                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
+                         Column(
+                             modifier = Modifier
+                                 .fillMaxSize()
+                                 .padding(innerPadding)
+                                 .padding(8.dp)
+                         ){
+                             Text(
+                                 text = "Tecnicos",
+                                 style = MaterialTheme.typography.headlineLarge,
+                                 modifier = Modifier.padding(bottom = 8.dp)
+                             )
+
+
+                             TechnicalScreen(viewModel = viewModel)
+                             TechnicalListScreen(viewModel = viewModel,
+                                 onTechnicalClickVer = {
+
+                                 }
+                             )
+
+                         }
+
+
+                     }
+                 }*/
             }
         }
     }
 }
 
+sealed class Screen{
+    @Serializable
+    object TechnicalListScreen : Screen()
 
+    @Serializable
+    data class Tecnico(val id: Int) : Screen()
+}
 
+@Preview
+@Composable
+fun preview(){
+    TechnicalTheme {
+
+    }
+
+}

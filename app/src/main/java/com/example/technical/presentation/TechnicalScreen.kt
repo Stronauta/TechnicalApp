@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,10 +31,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.technical.R
 
 import com.example.technical.data.local.entities.TechnicalEntity
@@ -43,9 +45,12 @@ import com.example.technical.ui.theme.TechnicalTheme
 fun TechnicalScreen(
     viewModel: TecnicoViewModel
 ){
-    val tecnicos by viewModel.technicals.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     TechnicalBody(
-        technicals = tecnicos,
+        uiState = uiState,
+        onNameChange = viewModel::onNameChange,
+        onMontoChange = { monto -> viewModel.onSalaryChange(monto.toDoubleOrNull() ?: 0.0) },
         onSaveTechnical = {
             viewModel.saveTechnical(it)
         }
@@ -55,7 +60,9 @@ fun TechnicalScreen(
 
 @Composable
 fun TechnicalBody(
-    technicals: List<TechnicalEntity>,
+    uiState: TecnicoViewModel.TecnicoUiState,
+    onNameChange: (String) -> Unit,
+    onMontoChange: (String) -> Unit,
     onSaveTechnical: (TechnicalEntity) -> Unit
 ) {
 
@@ -76,138 +83,144 @@ fun TechnicalBody(
     }
 
     fun validarNombreDuplicado(): Boolean {
-        return technicals.any { it.tecnicoName.equals(technicalName, ignoreCase = true) }
+       // return tecnicals.any { it.tecnicoName.equals(technicalName, ignoreCase = true) }
+        return true
     }
 
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(8.dp)
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth()
+                .padding(innerPadding)
         ) {
-
-            OutlinedTextField(
-                maxLines = 1,
-                label = { Text("Nombre") },
-                value = technicalName,
-                onValueChange = { name ->
-                    val filtrarName = name.take(30).filter { it.isLetter() || it.isWhitespace() }
-                    technicalName = filtrarName
-                    isTecnicoNameError = validarNombreDuplicado()
-                },
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "person",
-                        tint = if (isNameError) Color.Red else Color.Gray
-                    )
-                },
-                isError = isNameError
-            )
-            if (isNameError) {
-                Text(
-                    text = if (isTecnicoNameError) "El técnico $technicalName ya esta existe" else "El nombre es obligatorio",
-                    color = Color.Red,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            OutlinedTextField(
-                maxLines = 1,
-                label = { Text("Sueldo") },
-                value = monto.toString(),
-                onValueChange = { newValue ->
-                    val newText = newValue.takeIf { it.matches(Regex("""^\d{0,5}(\.\d{0,2})?$""")) } ?: monto.toString()
-                    monto = newText.toDoubleOrNull() ?: 0.0
-                },
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icons8_moneda_90),
-                        contentDescription = "money",
-                        tint = if (isMontoError) Color.Red else Color.Gray
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-                isError = isMontoError
-            )
-
-            if (isMontoError) {
-                Text(
-                    text = "El sueldo debe ser mayor a 0",
-                    color = Color.Red,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(15.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = Modifier.padding(8.dp)
             ) {
-                OutlinedButton(
-                    onClick = {
-                        showError = false
-                        isTecnicoNameError = false
-                        if (technicalName.isNotEmpty() || monto > 0.0) {
-                            technicalName = ""
-                            monto = 0.0
 
-                            Toast.makeText(context, "Datos limpiados", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "new button"
+                OutlinedTextField(
+                    maxLines = 1,
+                    label = { Text("Nombre") },
+                    value = uiState.nombreTecnico,
+                    onValueChange = { name ->
+                        val filtrarName = name.take(30).filter { it.isLetter() }
+                        onNameChange(filtrarName)
+                        isTecnicoNameError = validarNombreDuplicado()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "person",
+                            tint = if (isNameError) Color.Red else Color.Gray
+                        )
+                    },
+                    isError = isNameError
+                )
+                if (isNameError) {
+                    Text(
+                        text = if (isTecnicoNameError) "El técnico $technicalName ya esta existe" else "El nombre es obligatorio",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 16.dp)
                     )
-                    Text(text = "Nuevo")
                 }
 
-                OutlinedButton(
-                    onClick = {
-                        showError = true
-                        isTecnicoNameError = validarNombreDuplicado()
-                        if (validateInput() && !isTecnicoNameError) {
-                            onSaveTechnical(
-                                TechnicalEntity(
-                                    tecnicoId = technicalId.toIntOrNull(),
-                                    tecnicoName = technicalName,
-                                    monto = monto
-                                )
-                            )
-                            technicalId = ""
-                            technicalName = ""
-                            monto = 0.0
+                Spacer(modifier = Modifier.height(4.dp))
 
-                            Toast.makeText(context, "Datos guardados", Toast.LENGTH_SHORT).show()
+                OutlinedTextField(
+                    maxLines = 1,
+                    label = { Text("Sueldo") },
+                    value = uiState.salarioTecnico.toString(),
+                    onValueChange = { newValue ->
+                        val newText = newValue.takeIf { it.matches(Regex("""^\d{0,5}(\.\d{0,2})?$""")) } ?: monto.toString()
+                        monto = newText.toDoubleOrNull() ?: 0.0
+                        onMontoChange(newText)
+                    },
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icons8_moneda_90),
+                            contentDescription = "money",
+                            tint = if (isMontoError) Color.Red else Color.Gray
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                    isError = isMontoError
+                )
+                if (isMontoError) {
+                    Text(
+                        text = "El sueldo debe ser mayor a 0",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    OutlinedButton(
+                        onClick = {
                             showError = false
                             isTecnicoNameError = false
-                        } else {
-                            if (isTecnicoNameError) {
-                                Toast.makeText(context, "¡Ya existe un técnico con ese nombre!", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Ingrese los datos correctamente", Toast.LENGTH_SHORT).show()
+                            if (technicalName.isNotEmpty() || monto > 0.0) {
+                                technicalName = ""
+                                monto = 0.0
+
+                                Toast.makeText(context, "Datos limpiados", Toast.LENGTH_SHORT).show()
                             }
                         }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "new button"
+                        )
+                        Text(text = "Nuevo")
                     }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Done,
-                        contentDescription = "save button"
-                    )
-                    Text(text = "Guardar")
+
+                    OutlinedButton(
+                        onClick = {
+                            showError = true
+                            isTecnicoNameError = validarNombreDuplicado()
+                            if (validateInput() && !isTecnicoNameError) {
+                                onSaveTechnical(
+                                    TechnicalEntity(
+                                        tecnicoId = technicalId.toIntOrNull(),
+                                        tecnicoName = technicalName,
+                                        monto = monto
+                                    )
+                                )
+                                technicalId = ""
+                                technicalName = ""
+                                monto = 0.0
+
+                                Toast.makeText(context, "Datos guardados", Toast.LENGTH_SHORT).show()
+                                showError = false
+                                isTecnicoNameError = false
+                            } else {
+                                if (isTecnicoNameError) {
+                                    Toast.makeText(context, "¡Ya existe un técnico con ese nombre!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Ingrese los datos correctamente", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            contentDescription = "save button"
+                        )
+                        Text(text = "Guardar")
+                    }
                 }
             }
         }
+
     }
 }
+
 
 
 
@@ -216,9 +229,10 @@ fun TechnicalBody(
 private fun TecnicoBodyPreview(){
     TechnicalTheme{
         TechnicalBody(
-            technicals = emptyList(),
-        ) {
-
-        }
+            uiState = TecnicoViewModel.TecnicoUiState(),
+            onNameChange = {},
+            onMontoChange = {},
+            onSaveTechnical = {}
+        )
     }
 }

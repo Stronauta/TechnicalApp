@@ -19,11 +19,14 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,152 +57,167 @@ fun TechnicalListScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TechnicalListBody(
     technical: List<TechnicalEntity>,
     onTechnicalClickVer: (TechnicalEntity) -> Unit,
     //onTechnicalDelete: (TechnicalEntity) -> Unit
-){
+) {
     val context = LocalContext.current
 
     var showDialog by remember { mutableStateOf(false) }
     var technicalDelete by remember { mutableStateOf<TechnicalEntity?>(null) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(4.dp)
-    ) {
+    Scaffold(modifier = Modifier.fillMaxSize(),
+        topBar = { TopAppBar(title = { Text("Tecnicos") }) }
+    ) { innerPadding ->
 
-        if(technical.isNotEmpty()){
-            Row {
-                Text(
-                    text = "#",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.weight(0.100f)
-                )
-
-                Text(
-                    text = "Nombre",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.weight(0.25f)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "Sueldo por Hora",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.weight(0.40f)
-                )
-            }
-        }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(4.dp)
         ) {
-            items(technical) { Technical ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                        .background(
-                            color = if ((Technical.tecnicoId ?: 0) % 2 == 0)
-                                Color(0x8FFFFFFF)
-                            else
-                                Color(0xFFFFFFFF)
-                        )
-                ) {
-                    Row(
+
+            if (technical.isNotEmpty()) {
+                Row {
+                    Text(
+                        text = "#",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(0.100f)
+                    )
+
+                    Text(
+                        text = "Nombre",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(0.25f)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Sueldo por Hora",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(0.40f)
+                    )
+                }
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(technical) { Technical ->
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onTechnicalClickVer(Technical) }
-                            .padding(horizontal = 4.dp)
-                    ) {
-                        Text(text = Technical.tecnicoId.toString() + ". ", modifier = Modifier.weight(0.100f))
-                        Text(text = Technical.tecnicoName, modifier = Modifier.weight(0.25f))
-                        Text(text = "RD " + Technical.monto.toString(), modifier = Modifier.weight(0.25f))
-
-                        IconButton(onClick = {
-                            showDialog = true
-                            technicalDelete = Technical
-                        },
-                            modifier = Modifier.height(23.dp),
-                        ) {
-                            Icon(
-                                Icons.TwoTone.Delete,
-                                contentDescription = "Eliminar",
-                                tint = Color(0xFFC95050)
+                            .padding(vertical = 8.dp)
+                            .background(
+                                color = if ((Technical.tecnicoId ?: 0) % 2 == 0)
+                                    Color(0x8FFFFFFF)
+                                else
+                                    Color(0xFFFFFFFF)
                             )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onTechnicalClickVer(Technical) }
+                                .padding(horizontal = 4.dp)
+                        ) {
+                            Text(
+                                text = Technical.tecnicoId.toString() + ". ",
+                                modifier = Modifier.weight(0.100f)
+                            )
+                            Text(text = Technical.tecnicoName, modifier = Modifier.weight(0.25f))
+                            Text(
+                                text = "RD " + Technical.monto.toString(),
+                                modifier = Modifier.weight(0.25f)
+                            )
+
+                            IconButton(
+                                onClick = {
+                                    showDialog = true
+                                    technicalDelete = Technical
+                                },
+                                modifier = Modifier.height(23.dp),
+                            ) {
+                                Icon(
+                                    Icons.TwoTone.Delete,
+                                    contentDescription = "Eliminar",
+                                    tint = Color(0xFFC95050)
+                                )
+                            }
                         }
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                }
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(Color.Gray)
-                )
-            }
-        }
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = "Warning",
-                            tint = Color(0xFFDAA504)
-                        )
 
                         Spacer(modifier = Modifier.width(8.dp))
 
-                        Text(
-                            "Eliminar Técnico",
-                            style = MaterialTheme.typography.titleMedium
-                        )
                     }
-                },
-                text = {
-                    Text(
-                        "¿Esta seguro de eliminar el técnico ?",
-                        style = MaterialTheme.typography.bodyMedium
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(Color.Gray)
                     )
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                           // onTechnicalDelete(technicalDelete!!)
-                            showDialog = false
-                            Toast.makeText(context, "Técnico eliminado", Toast.LENGTH_SHORT).show()
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = Color.Red
-                        )
-                    ) {
-                        Text("Confirmar")
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showDialog = false }
-                    ) {
-                        Text("Cancelar")
-                    }
                 }
-            )
+            }
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "Warning",
+                                tint = Color(0xFFDAA504)
+                            )
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Text(
+                                "Eliminar Técnico",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                    },
+                    text = {
+                        Text(
+                            "¿Esta seguro de eliminar el técnico ?",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                // onTechnicalDelete(technicalDelete!!)
+                                showDialog = false
+                                Toast.makeText(context, "Técnico eliminado", Toast.LENGTH_SHORT)
+                                    .show()
+                            },
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = Color.Red
+                            )
+                        ) {
+                            Text("Confirmar")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showDialog = false }
+                        ) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
+            }
         }
+
     }
 }
 
-
 @Preview
 @Composable
-fun TechnicalListPreview(){
+ fun TechnicalListPreview(){
     val technical = listOf(
         TechnicalEntity(
             tecnicoId = 1,

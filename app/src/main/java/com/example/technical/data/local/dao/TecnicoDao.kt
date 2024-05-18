@@ -30,7 +30,5 @@ interface TecnicoDao {
     @Query("SELECT * FROM Tecnico")
     fun findAll(): Flow<List<TechnicalEntity>>
 
-    @Query("SELECT * FROM Tecnico WHERE tecnicoName=:name LIMIT 1")
-    suspend fun findByName(name: String): TechnicalEntity?
 
 }
