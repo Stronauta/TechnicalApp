@@ -39,8 +39,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TechnicalTheme {
-                var navController = rememberNavController()
-                NavHost(navController = navController, startDestination = Screen.TechnicalListScreen) {
+                val navController = rememberNavController()
+
+
+                NavHost(navController = navController, startDestination = Screen.TechnicalListScreen)
+                {
 
                     composable<Screen.TechnicalListScreen>{
                         TechnicalListScreen(
@@ -48,41 +51,20 @@ class MainActivity : ComponentActivity() {
                             onTechnicalClickVer = {
                                 navController.navigate(Screen.Tecnico(it.tecnicoId ?: 0))
                             }
+
                         )
 
+
+                    }
+
+                    composable<Screen.Tecnico>{
+                        val args = it.toRoute<Screen.Tecnico>()
+                        TechnicalScreen(
+                            viewModel = viewModel { TecnicoViewModel(repository, args.id) },
+                            navController = navController  // Pass the NavController here
+                        )
                     }
                 }
-                /* Surface {
-                     val viewModel: TecnicoViewModel = viewModel(
-                         factory = TecnicoViewModel.provideFactory(repository)
-                     )
-                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
-                         Column(
-                             modifier = Modifier
-                                 .fillMaxSize()
-                                 .padding(innerPadding)
-                                 .padding(8.dp)
-                         ){
-                             Text(
-                                 text = "Tecnicos",
-                                 style = MaterialTheme.typography.headlineLarge,
-                                 modifier = Modifier.padding(bottom = 8.dp)
-                             )
-
-
-                             TechnicalScreen(viewModel = viewModel)
-                             TechnicalListScreen(viewModel = viewModel,
-                                 onTechnicalClickVer = {
-
-                                 }
-                             )
-
-                         }
-
-
-                     }
-                 }*/
             }
         }
     }

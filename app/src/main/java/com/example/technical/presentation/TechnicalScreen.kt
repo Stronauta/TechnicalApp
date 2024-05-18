@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,17 +36,24 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import com.example.technical.R
 
 import com.example.technical.data.local.entities.TechnicalEntity
+import com.example.technical.presentation.Componets.TopAppBar
 import com.example.technical.ui.theme.TechnicalTheme
-
+import com.example.technical.presentation.Componets.TopAppBar
 
 @Composable
 fun TechnicalScreen(
-    viewModel: TecnicoViewModel
+    viewModel: TecnicoViewModel,
+    navController: NavController
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Button(onClick = { navController.popBackStack() }) {
+        Text("Go Back")
+    }
 
     TechnicalBody(
         uiState = uiState,
@@ -67,27 +75,27 @@ fun TechnicalBody(
 ) {
 
     var technicalId by remember { mutableStateOf("") }
-    var technicalName by remember { mutableStateOf("") }
-    var monto by remember { mutableStateOf(0.0) }
+
 
     var showError by remember { mutableStateOf(false) }
     var isTecnicoNameError by remember { mutableStateOf(false) }
 
-    val isNameError = showError && (technicalName.isBlank() || technicalName.any { it.isDigit() }) || isTecnicoNameError
-    val isMontoError = showError && (monto <= 0.0)
+    val isNameError = showError && (uiState.nombreTecnico.isBlank() || uiState.nombreTecnico.any { it.isDigit() }) || isTecnicoNameError
+    val isMontoError = showError && (uiState.salarioTecnico <= 0.0)
 
     val context = LocalContext.current
 
     fun validateInput(): Boolean {
-        return technicalName.isNotEmpty() && monto > 0.0
+        return uiState.nombreTecnico.isNotEmpty() && uiState.salarioTecnico > 0.0
     }
 
     fun validarNombreDuplicado(): Boolean {
-       // return tecnicals.any { it.tecnicoName.equals(technicalName, ignoreCase = true) }
-        return true
+        return uiState.nombreTecnico.equals(uiState.nombreTecnico, ignoreCase = true)
+
     }
 
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+    Scaffold(modifier = Modifier.fillMaxSize(),
+        topBar = { TopAppBar(title = "Crear Técnico") },) { innerPadding ->
         ElevatedCard(
             modifier = Modifier.fillMaxWidth()
                 .padding(innerPadding)
@@ -117,7 +125,7 @@ fun TechnicalBody(
                 )
                 if (isNameError) {
                     Text(
-                        text = if (isTecnicoNameError) "El técnico $technicalName ya esta existe" else "El nombre es obligatorio",
+                        text = if (isTecnicoNameError) "El técnico ${uiState.nombreTecnico} ya esta existe" else "El nombre es obligatorio",
                         color = Color.Red,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = 16.dp)
@@ -131,8 +139,7 @@ fun TechnicalBody(
                     label = { Text("Sueldo") },
                     value = uiState.salarioTecnico.toString(),
                     onValueChange = { newValue ->
-                        val newText = newValue.takeIf { it.matches(Regex("""^\d{0,5}(\.\d{0,2})?$""")) } ?: monto.toString()
-                        monto = newText.toDoubleOrNull() ?: 0.0
+                        val newText = newValue.takeIf { it.matches(Regex("""^\d{0,5}(\.\d{0,2})?$""")) } ?: uiState.salarioTecnico.toString()
                         onMontoChange(newText)
                     },
                     trailingIcon = {
@@ -165,9 +172,8 @@ fun TechnicalBody(
                         onClick = {
                             showError = false
                             isTecnicoNameError = false
-                            if (technicalName.isNotEmpty() || monto > 0.0) {
-                                technicalName = ""
-                                monto = 0.0
+                            if (uiState.nombreTecnico.isNotEmpty() || uiState.salarioTecnico > 0.0) {
+
 
                                 Toast.makeText(context, "Datos limpiados", Toast.LENGTH_SHORT).show()
                             }
@@ -188,13 +194,10 @@ fun TechnicalBody(
                                 onSaveTechnical(
                                     TechnicalEntity(
                                         tecnicoId = technicalId.toIntOrNull(),
-                                        tecnicoName = technicalName,
-                                        monto = monto
+                                        tecnicoName = uiState.nombreTecnico,
+                                        monto = uiState.salarioTecnico
                                     )
                                 )
-                                technicalId = ""
-                                technicalName = ""
-                                monto = 0.0
 
                                 Toast.makeText(context, "Datos guardados", Toast.LENGTH_SHORT).show()
                                 showError = false
@@ -220,8 +223,6 @@ fun TechnicalBody(
 
     }
 }
-
-
 
 
 @Preview
