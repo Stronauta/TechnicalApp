@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.technical.data.local.entities.TechnicalEntity
 import com.example.technical.ui.theme.TechnicalTheme
+import com.example.technical.presentation.Componets.TopAppBar
 
 @Composable
 fun TechnicalListScreen(
@@ -57,7 +58,6 @@ fun TechnicalListScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TechnicalListBody(
     technical: List<TechnicalEntity>,
@@ -70,8 +70,7 @@ fun TechnicalListBody(
     var technicalDelete by remember { mutableStateOf<TechnicalEntity?>(null) }
 
     Scaffold(modifier = Modifier.fillMaxSize(),
-        topBar = { TopAppBar(title = { Text("Tecnicos") }) }
-    ) { innerPadding ->
+        topBar = { TopAppBar(title = "Tickets") }) { innerPadding ->
 
         Column(
             modifier = Modifier

@@ -36,6 +36,9 @@ class TecnicoViewModel(private val repository: TechnicalRepository, private val 
             it.copy(salarioTecnico = salary)
         }
     }
+
+
+
     init {
         viewModelScope.launch {
             val technical = repository.getTecnicoById(tecnicoid)
