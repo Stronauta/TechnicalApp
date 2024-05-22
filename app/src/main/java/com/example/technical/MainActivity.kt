@@ -14,17 +14,16 @@ import androidx.navigation.toRoute
 import androidx.room.Room
 import com.example.technical.ui.theme.TechnicalTheme
 import com.example.technical.data.local.database.TecnicoDatabase
-import com.example.technical.data.local.database.tiposTecnicoDatabase
 import com.example.technical.data.repository.TechnicalRepository
-import com.example.technical.presentation.TechnicalListScreen
-import com.example.technical.presentation.TecnicoViewModel
-import com.example.technical.presentation.TechnicalScreen
+import com.example.technical.data.repository.TiposRepository
+import com.example.technical.presentation.Tecnico.TechnicalListScreen
+import com.example.technical.presentation.Tecnico.TecnicoViewModel
+import com.example.technical.presentation.Tecnico.TechnicalScreen
 import kotlinx.serialization.Serializable
 
 
 class MainActivity : ComponentActivity() {
     private lateinit var tecnicoDb: TecnicoDatabase
-    private lateinit var tipDb: tiposTecnicoDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,15 +36,8 @@ class MainActivity : ComponentActivity() {
             .fallbackToDestructiveMigration()
             .build()
 
-        tipDb = Room.databaseBuilder(
-            this,
-            tiposTecnicoDatabase::class.java,
-            "tiposTecnicos.db"
-        )
-            .fallbackToDestructiveMigration()
-            .build()
-
         val repository = TechnicalRepository(tecnicoDb.technicalDao())
+        val tipoRepository = TiposRepository(tecnicoDb.tiposDao())
         enableEdgeToEdge()
         setContent {
             TechnicalTheme {
@@ -57,23 +49,25 @@ class MainActivity : ComponentActivity() {
 
                     composable<Screen.TechnicalListScreen>{
                         TechnicalListScreen(
-                            viewModel = viewModel { TecnicoViewModel(repository, 0) },
+                            viewModel = viewModel { TecnicoViewModel(repository, 0, tipoRepository) },
                             onTechnicalClickVer = {
                                 navController.navigate(Screen.Tecnico(it.tecnicoId ?: 0))
-                            }
+                            },
+                            onAddTechnical = {
+                                navController.navigate(Screen.Tecnico(0))
+                            },
+                            navController = navController
 
                         )
-
-
                     }
 
-                    composable<Screen.Tecnico>{
+/*                    composable<Screen.Tecnico>{
                         val args = it.toRoute<Screen.Tecnico>()
                         TechnicalScreen(
                             viewModel = viewModel { TecnicoViewModel(repository, args.id) },
-                            navController = navController  // Pass the NavController here
+                            navController = navController
                         )
-                    }
+                    }*/
                 }
             }
         }
@@ -86,6 +80,12 @@ sealed class Screen{
 
     @Serializable
     data class Tecnico(val id: Int) : Screen()
+
+    @Serializable
+    data class TiposTecnico(val id: Int) : Screen()
+
+    @Serializable
+    data class TiposTecnicoList(val id: Int) : Screen()
 }
 
 @Preview

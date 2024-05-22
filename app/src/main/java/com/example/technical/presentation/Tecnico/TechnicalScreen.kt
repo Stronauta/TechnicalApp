@@ -1,4 +1,4 @@
-package com.example.technical.presentation
+package com.example.technical.presentation.Tecnico
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -37,12 +37,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.technical.R
 
 import com.example.technical.data.local.entities.TechnicalEntity
+import com.example.technical.data.local.entities.TiposEntity
 import com.example.technical.presentation.Componets.TopAppBar
 import com.example.technical.ui.theme.TechnicalTheme
-import com.example.technical.presentation.Componets.TopAppBar
 
 @Composable
 fun TechnicalScreen(
@@ -61,7 +63,8 @@ fun TechnicalScreen(
         onMontoChange = { monto -> viewModel.onSalaryChange(monto.toDoubleOrNull() ?: 0.0) },
         onSaveTechnical = {
             viewModel.saveTechnical(it)
-        }
+        },
+        navController = navController
     )
 }
 
@@ -71,7 +74,8 @@ fun TechnicalBody(
     uiState: TecnicoViewModel.TecnicoUiState,
     onNameChange: (String) -> Unit,
     onMontoChange: (String) -> Unit,
-    onSaveTechnical: (TechnicalEntity) -> Unit
+    onSaveTechnical: (TechnicalEntity) -> Unit,
+    navController: NavController
 ) {
 
     var technicalId by remember { mutableStateOf("") }
@@ -79,7 +83,6 @@ fun TechnicalBody(
 
     var showError by remember { mutableStateOf(false) }
     var isTecnicoNameError by remember { mutableStateOf(false) }
-
     val isNameError = showError && (uiState.nombreTecnico.isBlank() || uiState.nombreTecnico.any { it.isDigit() }) || isTecnicoNameError
     val isMontoError = showError && (uiState.salarioTecnico <= 0.0)
 
@@ -97,7 +100,8 @@ fun TechnicalBody(
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = { TopAppBar(title = "Crear Técnico") },) { innerPadding ->
         ElevatedCard(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(innerPadding)
         ) {
             Column(
@@ -132,6 +136,8 @@ fun TechnicalBody(
                     )
                 }
 
+
+
                 Spacer(modifier = Modifier.height(4.dp))
 
                 OutlinedTextField(
@@ -161,6 +167,8 @@ fun TechnicalBody(
                         modifier = Modifier.padding(start = 16.dp)
                     )
                 }
+
+
 
                 Spacer(modifier = Modifier.height(15.dp))
 
@@ -233,7 +241,8 @@ private fun TecnicoBodyPreview(){
             uiState = TecnicoViewModel.TecnicoUiState(),
             onNameChange = {},
             onMontoChange = {},
-            onSaveTechnical = {}
+            onSaveTechnical = {},
+            navController = rememberNavController(),
         )
     }
 }

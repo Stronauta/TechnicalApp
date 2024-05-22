@@ -8,5 +8,6 @@ data class TechnicalEntity(
     @PrimaryKey
     val tecnicoId: Int? = null,
     var tecnicoName : String = "",
-    var monto: Double = 0.0
+    var monto: Double = 0.0,
+    var tipo: String = "",
 )

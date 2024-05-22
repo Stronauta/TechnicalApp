@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
+import com.example.technical.data.local.entities.TechnicalEntity
 
 import com.example.technical.data.local.entities.TiposEntity
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,12 @@ interface TiposTecnicosDao {
         LIMIT 1
         """
     )
-    suspend fun fin(id: Int): TiposEntity?
+    suspend fun find(id: Int): TiposEntity?
+
+    @Query("SELECT * FROM TiposTecnicos")
+    fun findAll(): Flow<List<TiposEntity>>
+
+
+
 }
 

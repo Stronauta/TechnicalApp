@@ -1,4 +1,4 @@
-package com.example.technical.presentation
+package com.example.technical.presentation.Tecnico
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -19,14 +19,13 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,21 +39,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.technical.data.local.entities.TechnicalEntity
 import com.example.technical.ui.theme.TechnicalTheme
 import com.example.technical.presentation.Componets.TopAppBar
+import com.example.technical.presentation.Componets.Notificacion
+import com.example.technical.presentation.Componets.FloatingButton
 
 @Composable
 fun TechnicalListScreen(
     viewModel: TecnicoViewModel,
     onTechnicalClickVer: (TechnicalEntity) -> Unit,
+    onAddTechnical: () -> Unit,
+    navController: NavHostController
    // onTechnicalDelete: (TechnicalEntity) -> Unit
 ){
     val technical by viewModel.technicals.collectAsStateWithLifecycle()
     TechnicalListBody(
         technical = technical,
-        onTechnicalClickVer = onTechnicalClickVer
-       // onTechnicalDelete = onTechnicalDelete
+        onTechnicalClickVer = onTechnicalClickVer,
+        onAddTechnical = onAddTechnical,
+        navController = navController,
+
     )
 }
 
@@ -62,7 +70,8 @@ fun TechnicalListScreen(
 fun TechnicalListBody(
     technical: List<TechnicalEntity>,
     onTechnicalClickVer: (TechnicalEntity) -> Unit,
-    //onTechnicalDelete: (TechnicalEntity) -> Unit
+    onAddTechnical: () -> Unit,
+    navController: NavHostController,
 ) {
     val context = LocalContext.current
 
@@ -70,7 +79,15 @@ fun TechnicalListBody(
     var technicalDelete by remember { mutableStateOf<TechnicalEntity?>(null) }
 
     Scaffold(modifier = Modifier.fillMaxSize(),
-        topBar = { TopAppBar(title = "Tickets") }) { innerPadding ->
+        topBar = {
+            TopAppBar(
+                title = "Tecnicos"
+            )
+        },
+        floatingActionButton = {
+            FloatingButton(onAddTechnical)
+        }
+    ) { innerPadding ->
 
         Column(
             modifier = Modifier
@@ -80,6 +97,10 @@ fun TechnicalListBody(
         ) {
 
             if (technical.isNotEmpty()) {
+
+            }
+
+            ElevatedCard {
                 Row {
                     Text(
                         text = "#",
@@ -99,6 +120,12 @@ fun TechnicalListBody(
                         text = "Sueldo por Hora",
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.weight(0.40f)
+                    )
+
+                    Text(
+                        text = "Tipo",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(0.10f)
                     )
                 }
             }
@@ -132,6 +159,10 @@ fun TechnicalListBody(
                             Text(
                                 text = "RD " + Technical.monto.toString(),
                                 modifier = Modifier.weight(0.25f)
+                            )
+                            Text(
+                                text = Technical.tipo,
+                                modifier = Modifier.weight(0.10f)
                             )
 
                             IconButton(
@@ -225,9 +256,17 @@ fun TechnicalListBody(
         )
     )
     TechnicalTheme{
+        val technical = listOf(
+            TechnicalEntity(
+                tecnicoId = 1,
+                tecnicoName = "Samir",
+                monto = 1000.0
+            )
+        )
         TechnicalListBody(technical = technical,
-            onTechnicalClickVer = {}
-           // ,onTechnicalDelete = {}
+            onTechnicalClickVer = {},
+            onAddTechnical = {},
+            navController = rememberNavController()
         )
     }
 }
