@@ -22,10 +22,7 @@ import com.example.technical.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(title: String) {
-
-    var expanded by remember { mutableStateOf(false) }
-
+fun TopAppBar(title: String, onDrawerClicked: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -35,38 +32,13 @@ fun TopAppBar(title: String) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { expanded = true }) {
+            IconButton(onClick = { onDrawerClicked() }) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
-                    contentDescription = "Menu"
+                    contentDescription = "Localized description"
                 )
             }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                DropdownMenuItem(
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Person,
-                            contentDescription = "Agregar Técnico"
-                        )
-                    },
-                    text = { Text("Agregar Técnico") },
-                    onClick = {
-
-                    }
-                )
-            }
-        },
-/*        actions = {
-            IconButton(onClick = { expanded = false }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.icons8_llave_96),
-                    contentDescription = "Llave",
-                )
-            }
-        }*/
+        }
     )
 }
 
@@ -76,5 +48,5 @@ fun TopAppBar(title: String) {
 @Preview
 @Composable
 fun TopAppBarPreview() {
-    TopAppBar("Title")
+    TopAppBar(title = "My App", onDrawerClicked = {})
 }

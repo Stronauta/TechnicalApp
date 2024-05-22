@@ -19,6 +19,8 @@ import com.example.technical.data.repository.TiposRepository
 import com.example.technical.presentation.Tecnico.TechnicalListScreen
 import com.example.technical.presentation.Tecnico.TecnicoViewModel
 import com.example.technical.presentation.Tecnico.TechnicalScreen
+import com.example.technical.presentation.TipoTecnico.TipoScreen
+import com.example.technical.presentation.TipoTecnico.TiposViewModel
 import kotlinx.serialization.Serializable
 
 
@@ -61,13 +63,23 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-/*                    composable<Screen.Tecnico>{
+                    composable<Screen.Tecnico>{
                         val args = it.toRoute<Screen.Tecnico>()
                         TechnicalScreen(
-                            viewModel = viewModel { TecnicoViewModel(repository, args.id) },
+                            viewModel = viewModel { TecnicoViewModel(repository, args.id, tipoRepository) },
                             navController = navController
                         )
-                    }*/
+                    }
+
+                    composable<Screen.TiposTecnico> {
+                        val args = it.toRoute<Screen.TiposTecnico>()
+                        TipoScreen(
+                            viewModel = viewModel{TiposViewModel(tipoRepository,args.id)},
+                            navController = navController
+                        )
+
+                    }
+
                 }
             }
         }

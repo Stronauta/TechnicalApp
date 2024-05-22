@@ -1,9 +1,10 @@
-package com.example.technical.presentation
+package com.example.technical.presentation.Tecnico
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.technical.data.local.entities.TechnicalEntity
 import com.example.technical.data.repository.TechnicalRepository
+import com.example.technical.data.repository.TiposRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -11,8 +12,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
-class TecnicoViewModel(private val repository: TechnicalRepository, private val tecnicoid: Int) :
-    ViewModel() {
+class TecnicoViewModel(
+    private val repository: TechnicalRepository,
+    private val tecnicoid: Int,
+    private val TipoRepository: TiposRepository
+) : ViewModel() {
 
     var uiState = MutableStateFlow(TecnicoUiState())
         private set
@@ -24,10 +28,16 @@ class TecnicoViewModel(private val repository: TechnicalRepository, private val 
             initialValue = emptyList()
         )
 
+    val tipoTecnico = TipoRepository.getTipos()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
     fun onNameChange(name: String){
         uiState.update {
             it.copy(nombreTecnico = name)
-
         }
     }
 
@@ -37,7 +47,11 @@ class TecnicoViewModel(private val repository: TechnicalRepository, private val 
         }
     }
 
-
+    fun onTipoChange(tipo: String){
+        uiState.update {
+            it.copy(tipoTecnico = tipo)
+        }
+    }
 
     init {
         viewModelScope.launch {
@@ -48,7 +62,8 @@ class TecnicoViewModel(private val repository: TechnicalRepository, private val 
                     it.copy(
                         tenicoId = technical.tecnicoId ?: 0,
                         nombreTecnico = technical.tecnicoName,
-                        salarioTecnico = technical.monto
+                        salarioTecnico = technical.monto,
+                        tipoTecnico = technical.tipo
                     )
                 }
             }
@@ -68,20 +83,25 @@ class TecnicoViewModel(private val repository: TechnicalRepository, private val 
         }
     }
 
+
     data class TecnicoUiState(
         val tenicoId: Int = 0,
-        val nombreTecnico: String = "",
-        val errorName: String? = "",
-        val salarioTecnico: Double = 0.0,
-        val errorSalary: Double? = 0.0,
-        val error: String? = null
+        var nombreTecnico: String = "",
+        var errorName: String? = "",
+        var salarioTecnico: Double = 0.0,
+        var errorSalary: Double? = 0.0,
+        var error: String? = null,
+        var tipoTecnico: String = "",
+        var errorTipo: String? = null
+
     )
 
     fun TecnicoUiState.toEntity() : TechnicalEntity{
         return TechnicalEntity(
             tecnicoId = tenicoId,
             tecnicoName = nombreTecnico,
-            monto = salarioTecnico
+            monto = salarioTecnico,
+            tipo = tipoTecnico
         )
     }
 }

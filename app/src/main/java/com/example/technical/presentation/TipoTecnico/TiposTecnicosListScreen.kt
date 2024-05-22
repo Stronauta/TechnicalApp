@@ -25,20 +25,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.technical.R
 import com.example.technical.data.local.entities.TiposEntity
 import com.example.technical.ui.theme.TechnicalTheme
 import com.example.technical.presentation.Componets.TopAppBar
+import com.example.technical.presentation.Componets.FloatingButton
 
 @Composable
 fun TipoListScreen(
     viewModel: TiposViewModel,
-    onTipoClick: (TiposEntity) -> Unit
+    onTipoClick: (TiposEntity) -> Unit,
+    onAddTipo: () -> Unit,
+    navController: NavHostController
 ) {
-    val TiposList by viewModel.Tipos.collectAsStateWithLifecycle()
+    val tiposList by viewModel.Tipos.collectAsStateWithLifecycle()
     TiposListBody(
-        tiposList = TiposList,
-        onTipoClickVer = onTipoClick
+        tiposList = tiposList,
+        onTipoClickVer = onTipoClick,
+        onAddTipo = onAddTipo,
+        navController = navController
     )
 }
 
@@ -46,10 +53,23 @@ fun TipoListScreen(
 @Composable
 fun TiposListBody(
     tiposList: List<TiposEntity>,
-    onTipoClickVer: (TiposEntity) -> Unit
+    onTipoClickVer: (TiposEntity) -> Unit,
+    onAddTipo: () -> Unit,
+    navController: NavHostController
 ) {
     Scaffold(modifier = Modifier.fillMaxSize(),
-        topBar = { TopAppBar(title = "Tipos de Tecnicos") }) { innerPadding ->
+        topBar = {
+            TopAppBar(
+                title = "Tipos de Tecnicos",
+                onDrawerClicked = {
+
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingButton(onAddTipo)
+        }
+    ) { innerPadding ->
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -138,7 +158,9 @@ fun TiposListBodyPreview() {
     )
     TechnicalTheme {
         TiposListBody(tiposList = tipos,
-            onTipoClickVer = {}
+            onTipoClickVer = {},
+            onAddTipo = {},
+            navController = rememberNavController()
         )
     }
 }
