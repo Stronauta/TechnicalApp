@@ -1,4 +1,4 @@
-package com.example.technical.presentation.Componets
+package com.example.technical.presentation.componets
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add

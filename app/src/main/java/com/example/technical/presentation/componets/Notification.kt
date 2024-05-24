@@ -1,6 +1,5 @@
-package com.example.technical.presentation.Componets
+package com.example.technical.presentation.componets
 
-import android.app.Notification
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
