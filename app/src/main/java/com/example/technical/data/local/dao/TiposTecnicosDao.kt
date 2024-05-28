@@ -24,10 +24,31 @@ interface TiposTecnicosDao {
     )
     suspend fun find(id: Int): TiposEntity?
 
+    @Delete
+    suspend fun delete(tiposTecnico: TiposEntity)
+
     @Query("SELECT * FROM TiposTecnicos")
     fun findAll(): Flow<List<TiposEntity>>
 
+    @Query(
+        "" +
+                "SELECT * " +
+                "FROM TiposTecnicos " +
+                "WHERE Descripción " +
+                "LIKE :descripcion " +
+                "AND tipoId = :tipoTecnicoId"
+    )
+    suspend fun findByDescripcion(descripcion: String, tipoTecnicoId: Int): TiposEntity?
 
+    @Query(
+        """
+        SELECT TipoId 
+        FROM TiposTecnicos
+        WHERE Descripción = :descripcion
+        LIMIT 1
+        """
+    )
+    suspend fun findDescripcionTecnico(descripcion: String): Int?
 
 }
 

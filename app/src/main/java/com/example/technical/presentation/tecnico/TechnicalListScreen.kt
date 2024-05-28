@@ -1,4 +1,4 @@
-package com.example.technical.presentation.Tecnico
+package com.example.technical.presentation.tecnico
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -48,15 +48,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.technical.Screen
 import com.example.technical.data.local.entities.TechnicalEntity
 import com.example.technical.ui.theme.TechnicalTheme
-import com.example.technical.presentation.Componets.TopAppBar
-import com.example.technical.presentation.Componets.Notificacion
-import com.example.technical.presentation.Componets.FloatingButton
+import com.example.technical.presentation.componets.TopAppBar
+import com.example.technical.presentation.componets.FloatingButton
 import kotlinx.coroutines.launch
 
 @Composable
@@ -65,7 +63,7 @@ fun TechnicalListScreen(
     onTechnicalClickVer: (TechnicalEntity) -> Unit,
     onAddTechnical: () -> Unit,
     navController: NavHostController
-   // onTechnicalDelete: (TechnicalEntity) -> Unit
+    // onTechnicalDelete: (TechnicalEntity) -> Unit
 ){
     val technical by viewModel.technicals.collectAsStateWithLifecycle()
     TechnicalListBody(
@@ -74,7 +72,7 @@ fun TechnicalListScreen(
         onAddTechnical = onAddTechnical,
         navController = navController,
 
-    )
+        )
 }
 
 @Composable
@@ -96,23 +94,37 @@ fun TechnicalListBody(
         drawerContent = {
             ModalDrawerSheet(Modifier.requiredWidth(220.dp))
             {
-                Text("Lista de tipo de Técnicos", modifier = Modifier.padding(16.dp))
+                Text("Lista de Técnicos", modifier = Modifier.padding(16.dp))
                 Divider()
+
                 NavigationDrawerItem(
-                    label = { Text(text = "Lista de tipo de tecnicos") },
+                    label = { Text(text = "Lista de tecnicos") },
                     selected = false,
                     onClick = { navController.navigate(Screen.TechnicalListScreen) },
                     icon = {
                         Icon(
                             imageVector = Icons.TwoTone.Person,
-                            contentDescription = "Lista de tipo de tecnicos"
+                            contentDescription = "Lista de tecnicos"
                         )
                     }
                 )
+
+                NavigationDrawerItem(
+                    label = { Text(text = "Lista de tipos tecnicos") },
+                    selected = false,
+                    onClick = { navController.navigate(Screen.TiposTecnicoList) },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.TwoTone.Person,
+                            contentDescription = "Lista de tecnicos"
+                        )
+                    }
+                )
+
             }
         },
         drawerState = drawerState
-    ){
+    ) {
         Scaffold(modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
@@ -136,10 +148,6 @@ fun TechnicalListBody(
                     .padding(4.dp)
             ) {
 
-                if (technical.isNotEmpty()) {
-
-                }
-
                 ElevatedCard {
                     Row {
                         Text(
@@ -161,12 +169,6 @@ fun TechnicalListBody(
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                             modifier = Modifier.weight(0.40f)
                         )
-
-                        Text(
-                            text = "Tipo",
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                            modifier = Modifier.weight(0.10f)
-                        )
                     }
                 }
 
@@ -180,7 +182,7 @@ fun TechnicalListBody(
                                 .padding(vertical = 8.dp)
                                 .background(
                                     color = if ((Technical.tecnicoId ?: 0) % 2 == 0)
-                                        Color(0x8FFFFFFF)
+                                        Color(0xFFFFFFFF)
                                     else
                                         Color(0xFFFFFFFF)
                                 )
@@ -195,101 +197,33 @@ fun TechnicalListBody(
                                     text = Technical.tecnicoId.toString() + ". ",
                                     modifier = Modifier.weight(0.100f)
                                 )
-                                Text(text = Technical.tecnicoName, modifier = Modifier.weight(0.25f))
                                 Text(
-                                    text = "RD " + Technical.monto.toString(),
+                                    text = Technical.tecnicoName,
                                     modifier = Modifier.weight(0.25f)
                                 )
                                 Text(
-                                    text = Technical.tipo,
-                                    modifier = Modifier.weight(0.10f)
+                                    text = "RD " + Technical.monto.toString(),
+                                    modifier = Modifier.weight(0.350f)
                                 )
-
-                                IconButton(
-                                    onClick = {
-                                        showDialog = true
-                                        technicalDelete = Technical
-                                    },
-                                    modifier = Modifier.height(23.dp),
-                                ) {
-                                    Icon(
-                                        Icons.TwoTone.Delete,
-                                        contentDescription = "Eliminar",
-                                        tint = Color(0xFFC95050)
-                                    )
-                                }
                             }
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(Color.Gray)
+                            )
                         }
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(Color.Gray)
-                        )
                     }
                 }
-                if (showDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showDialog = false },
-                        title = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Warning,
-                                    contentDescription = "Warning",
-                                    tint = Color(0xFFDAA504)
-                                )
-
-                                Spacer(modifier = Modifier.width(8.dp))
-
-                                Text(
-                                    "Eliminar Técnico",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                            }
-                        },
-                        text = {
-                            Text(
-                                "¿Esta seguro de eliminar el técnico ?",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    // onTechnicalDelete(technicalDelete!!)
-                                    showDialog = false
-                                    Toast.makeText(context, "Técnico eliminado", Toast.LENGTH_SHORT)
-                                        .show()
-                                },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = Color.Red
-                                )
-                            ) {
-                                Text("Confirmar")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = { showDialog = false }
-                            ) {
-                                Text("Cancelar")
-                            }
-                        }
-                    )
-                }
             }
-
         }
-
     }
 }
 
+
 @Preview
 @Composable
- fun TechnicalListPreview(){
+fun TechnicalListPreview() {
     val technical = listOf(
         TechnicalEntity(
             tecnicoId = 1,
@@ -297,7 +231,7 @@ fun TechnicalListBody(
             monto = 1000.0
         )
     )
-    TechnicalTheme{
+    TechnicalTheme {
         val technical = listOf(
             TechnicalEntity(
                 tecnicoId = 1,
@@ -305,14 +239,13 @@ fun TechnicalListBody(
                 monto = 1000.0
             )
         )
-        TechnicalListBody(technical = technical,
+        TechnicalListBody(
+            technical = technical,
             onTechnicalClickVer = {},
             onAddTechnical = {},
             navController = rememberNavController()
         )
     }
 }
-
-
 
 

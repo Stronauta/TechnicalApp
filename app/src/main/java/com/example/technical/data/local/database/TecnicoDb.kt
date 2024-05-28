@@ -12,7 +12,7 @@ import com.example.technical.data.local.dao.TiposTecnicosDao
         TechnicalEntity::class,
         TiposEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 

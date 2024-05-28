@@ -4,8 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,11 +14,12 @@ import com.example.technical.ui.theme.TechnicalTheme
 import com.example.technical.data.local.database.TecnicoDatabase
 import com.example.technical.data.repository.TechnicalRepository
 import com.example.technical.data.repository.TiposRepository
-import com.example.technical.presentation.Tecnico.TechnicalListScreen
-import com.example.technical.presentation.Tecnico.TecnicoViewModel
-import com.example.technical.presentation.Tecnico.TechnicalScreen
-import com.example.technical.presentation.TipoTecnico.TipoScreen
-import com.example.technical.presentation.TipoTecnico.TiposViewModel
+import com.example.technical.presentation.tecnico.TechnicalListScreen
+import com.example.technical.presentation.tecnico.TecnicoViewModel
+import com.example.technical.presentation.tecnico.TechnicalScreen
+import com.example.technical.presentation.tipo_tecnico.TipoListScreen
+import com.example.technical.presentation.tipo_tecnico.TipoScreen
+import com.example.technical.presentation.tipo_tecnico.TiposViewModel
 import kotlinx.serialization.Serializable
 
 
@@ -40,6 +39,7 @@ class MainActivity : ComponentActivity() {
 
         val repository = TechnicalRepository(tecnicoDb.technicalDao())
         val tipoRepository = TiposRepository(tecnicoDb.tiposDao())
+
         enableEdgeToEdge()
         setContent {
             TechnicalTheme {
@@ -63,6 +63,19 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    composable<Screen.TiposTecnicoList> {
+                        TipoListScreen(
+                            viewModel = viewModel{TiposViewModel(tipoRepository, 0)},
+                            navController = navController,
+                            onTipoClick = {
+                                navController.navigate(Screen.TiposTecnico(it.TipoId ?: 0))
+                            },
+                            onAddTipo = {
+                                navController.navigate(Screen.TiposTecnico(0))
+                            }
+                        )
+                    }
+
                     composable<Screen.Tecnico>{
                         val args = it.toRoute<Screen.Tecnico>()
                         TechnicalScreen(
@@ -79,32 +92,24 @@ class MainActivity : ComponentActivity() {
                         )
 
                     }
-
                 }
             }
         }
     }
 }
 
+
 sealed class Screen{
     @Serializable
     object TechnicalListScreen : Screen()
+
+    @Serializable
+    object TiposTecnicoList: Screen()
 
     @Serializable
     data class Tecnico(val id: Int) : Screen()
 
     @Serializable
     data class TiposTecnico(val id: Int) : Screen()
-
-    @Serializable
-    data class TiposTecnicoList(val id: Int) : Screen()
-}
-
-@Preview
-@Composable
-fun preview(){
-    TechnicalTheme {
-
-    }
 
 }

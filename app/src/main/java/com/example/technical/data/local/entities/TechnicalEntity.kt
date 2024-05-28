@@ -9,5 +9,5 @@ data class TechnicalEntity(
     val tecnicoId: Int? = null,
     var tecnicoName : String = "",
     var monto: Double = 0.0,
-    var tipo: String = "",
+    var tipo: Int? = null,
 )
