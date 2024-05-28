@@ -1,6 +1,7 @@
 package com.example.technical.presentation.tipo_tecnico
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,14 +15,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.twotone.Info
+import androidx.compose.material.icons.twotone.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -92,16 +94,28 @@ fun TiposListBody(
         drawerContent = {
             ModalDrawerSheet(Modifier.requiredWidth(220.dp)) {
                 Text("Lista Tipo de Técnicos", modifier = Modifier.padding(16.dp))
-                Divider()
+                HorizontalDivider()
 
                 NavigationDrawerItem(
-                    label = { Text(text = "Lista tipo de técnicos") },
+                    label = { Text(text = "Lista de tecnicos") },
+                    selected = false,
+                    onClick = { navController.navigate(Screen.TechnicalListScreen) },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.TwoTone.Person,
+                            contentDescription = "Lista de tecnicos"
+                        )
+                    }
+                )
+
+                NavigationDrawerItem(
+                    label = { Text(text = "Lista de tipos tecnicos") },
                     selected = false,
                     onClick = { navController.navigate(Screen.TiposTecnicoList) },
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = "Lista tipo de técnicos"
+                            imageVector = Icons.TwoTone.Info,
+                            contentDescription = "Lista de tecnicos"
                         )
                     }
                 )
@@ -166,6 +180,9 @@ fun TiposListBody(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp)
+                                .background(
+                                    Color(0xFFFFFFFF)
+                                )
                         ) {
                             Row(
                                 modifier = Modifier
@@ -191,6 +208,12 @@ fun TiposListBody(
                                     contentDescription = "money",
                                 )
                             }
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(Color.Gray)
+                            )
                         }
                     }
 

@@ -54,33 +54,33 @@ class TiposViewModel(
     }
 
     fun saveTipo() {
-        var comprobado = true
-
-        uiState.update {
-            it.copy(esDescripcionError = null)
-        }
-
-        if(uiState.value.TipoId == 0){
-            uiState.update {
-                it.copy(TipoId = null)
-            }
-        }
-
-        if (uiState.value.Descripcion.isEmpty()) {
-            uiState.update {
-                it.copy(esDescripcionError = "Campo requerido")
-            }
-            comprobado = false
-        }
-
-        if (uiState.value.Descripcion.isNotEmpty() && !regexDescripcion.matches(uiState.value.Descripcion)) {
-            uiState.update {
-                it.copy(esDescripcionError = "Formato no valido")
-            }
-            comprobado = false
-        }
-
         viewModelScope.launch {
+            var comprobado = true
+
+            uiState.update {
+                it.copy(esDescripcionError = null)
+            }
+
+            if(uiState.value.TipoId == 0){
+                uiState.update {
+                    it.copy(TipoId = null)
+                }
+            }
+
+            if (uiState.value.Descripcion.isEmpty()) {
+                uiState.update {
+                    it.copy(esDescripcionError = "Campo requerido")
+                }
+                comprobado = false
+            }
+
+            if (uiState.value.Descripcion.isNotEmpty() && !regexDescripcion.matches(uiState.value.Descripcion)) {
+                uiState.update {
+                    it.copy(esDescripcionError = "Formato no valido")
+                }
+                comprobado = false
+            }
+
             if(!descripcionTipoExiste()){
                 uiState.update {
                     it.copy(esDescripcionError = "Descripcion ya existe")

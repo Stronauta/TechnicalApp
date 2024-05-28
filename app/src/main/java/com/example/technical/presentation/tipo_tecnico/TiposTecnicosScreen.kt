@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.twotone.Info
+import androidx.compose.material.icons.twotone.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -104,29 +106,27 @@ fun TipoBodyScreen(
                 Divider()
 
                 NavigationDrawerItem(
-                    label = {  Text(text = "Registro tipo de técnicos")  },
-                    selected = false,
-                    onClick = { navController.navigate(Screen.TiposTecnicoList) },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Lista tipo de técnicos"
-                        )
-                    }
-
-                )
-
-                NavigationDrawerItem(
-                    label = {  Text(text = "Registro de técnicos")  },
+                    label = { Text(text = "Lista de tecnicos") },
                     selected = false,
                     onClick = { navController.navigate(Screen.TechnicalListScreen) },
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Lista  de técnicos"
+                            imageVector = Icons.TwoTone.Person,
+                            contentDescription = "Lista de tecnicos"
                         )
                     }
+                )
 
+                NavigationDrawerItem(
+                    label = { Text(text = "Lista de tipos tecnicos") },
+                    selected = false,
+                    onClick = { navController.navigate(Screen.TiposTecnicoList) },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.TwoTone.Info,
+                            contentDescription = "Lista de tecnicos"
+                        )
+                    }
                 )
             }
         },
