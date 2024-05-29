@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TechnicalTheme {
                 val navController = rememberNavController()
-                val drawerState = rememberDrawerState(DrawerValue.Closed)
+                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
 
                 ModalNavigationDrawer(
@@ -186,72 +186,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-/*
-ModalNavigationDrawer(
-drawerContent = {
-    ModalDrawerSheet(Modifier.requiredWidth(220.dp)) {
-        Text("Registro de Tecnicos", modifier = Modifier.padding(16.dp))
-        Divider()
-        NavigationDrawerItem(
-            label = { Text(text = "Lista de tecnicos") },
-            selected = false,
-            onClick = { navController.navigate(Screen.TechnicalListScreen) },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Lista de tecnicos"
-                )
-            }
-        )
-
-        NavigationDrawerItem(
-            label = { Text(text = "Lista de tipos tecnicos") },
-            selected = false,
-            onClick = { navController.navigate(Screen.TiposTecnicoList) },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Lista de tipos tecnicos"
-                )
-            }
-        )
-    }
-},
-drawerState = drawerState,
-content = {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = "Your Title",
-                onDrawerClicked = {
-                    scope.launch {
-                        drawerState.open()
-                    }
-                }
-            )
-        },
-        content = {
-            NavHost(
-                navController = navController,
-                startDestination = Screen.TechnicalListScreen
-            ) {
-                // ... your composable destinations ...
-            }
-        }
-}
-)*/
-
-
-/*
-content = {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.TechnicalListScreen
-    )
-    {
-
-
-    }
-
-}*/
