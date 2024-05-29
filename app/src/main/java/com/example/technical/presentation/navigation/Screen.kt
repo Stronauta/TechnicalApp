@@ -10,9 +10,16 @@ sealed class Screen{
     object TiposTecnicoList: Screen()
 
     @Serializable
+    object ServicioListScreen: Screen()
+
+    @Serializable
     data class Tecnico(val id: Int) : Screen()
 
     @Serializable
     data class TiposTecnico(val id: Int) : Screen()
+
+    @Serializable
+    data class Servicio(val id: Int) : Screen()
+
 
 }
