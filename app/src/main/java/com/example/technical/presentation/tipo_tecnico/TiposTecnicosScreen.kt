@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.technical.Screen
+import com.example.technical.presentation.navigation.Screen
 import com.example.technical.data.local.entities.TiposEntity
 import com.example.technical.presentation.componets.TopAppBar
 import com.example.technical.presentation.componets.Notificacion
@@ -99,43 +99,10 @@ fun TipoBodyScreen(
     val scope = rememberCoroutineScope()
     var drawerState = rememberDrawerState(DrawerValue.Closed)
 
-    ModalNavigationDrawer(
-        drawerContent = {
-            ModalDrawerSheet( Modifier.requiredWidth(220.dp)) {
-                Text("Registro Tipo de Técnicos", modifier = Modifier.padding(16.dp))
-                Divider()
-
-                NavigationDrawerItem(
-                    label = { Text(text = "Lista de tecnicos") },
-                    selected = false,
-                    onClick = { navController.navigate(Screen.TechnicalListScreen) },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.TwoTone.Person,
-                            contentDescription = "Lista de tecnicos"
-                        )
-                    }
-                )
-
-                NavigationDrawerItem(
-                    label = { Text(text = "Lista de tipos tecnicos") },
-                    selected = false,
-                    onClick = { navController.navigate(Screen.TiposTecnicoList) },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.TwoTone.Info,
-                            contentDescription = "Lista de tecnicos"
-                        )
-                    }
-                )
-            }
-        },
-        drawerState = drawerState
-    ) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            topBar = {
-                TopAppBar(
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
                 title = "Crear Tipo de Técnico",
                 onDrawerClicked = {
                     scope.launch {
@@ -143,159 +110,158 @@ fun TipoBodyScreen(
                     }
                 }
             ) },
-        )
-        { innerPadding ->
+    )
+    { innerPadding ->
 
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(innerPadding)
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(innerPadding)
+        ) {
+            Column(
+                modifier = Modifier.padding(8.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(8.dp)
+
+                OutlinedTextField(
+                    label = { Text(text = "Descripción") },
+                    maxLines = 1,
+                    value = uiState.Descripcion,
+                    onValueChange = onDescripcionChange ,
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Descripción",
+                            tint = if(!uiState.esDescripcionError.isNullOrEmpty()) Color.Red else Color.Gray
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = !uiState.esDescripcionError.isNullOrEmpty(),
+                )
+                if(!uiState.esDescripcionError.isNullOrEmpty()){
+                    Text(text = uiState.esDescripcionError ?: "", color = Color.Red)
+                    Notificacion(Mensaje = "Debe ingresar una descripción")
+                }
+
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
-                    OutlinedTextField(
-                        label = { Text(text = "Descripción") },
-                        maxLines = 1,
-                        value = uiState.Descripcion,
-                        onValueChange = onDescripcionChange ,
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Descripción",
-                                tint = if(!uiState.esDescripcionError.isNullOrEmpty()) Color.Red else Color.Gray
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = !uiState.esDescripcionError.isNullOrEmpty(),
-                    )
-                    if(!uiState.esDescripcionError.isNullOrEmpty()){
-                        Text(text = uiState.esDescripcionError ?: "", color = Color.Red)
-                        Notificacion(Mensaje = "Debe ingresar una descripción")
+                    OutlinedButton(
+                        onClick = {
+                            Toast.makeText(context, "Casillas limpias", Toast.LENGTH_SHORT).show()
+
+                            onNewTipo()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "new button"
+                        )
+                        Text(text = "Nuevo")
                     }
 
-
-                    Spacer(modifier = Modifier.height(15.dp))
-
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    OutlinedButton(
+                        onClick = {
+                            if (uiState.Descripcion.isNotEmpty()) {
+                                onSaveTipo()
+                                if(uiState.esDescripcionError.isNullOrEmpty()){
+                                    if(uiState.TipoId == 0 || uiState.TipoId == null){
+                                        Toast.makeText(context, "Tipo técnico ha sido creado", Toast.LENGTH_SHORT)
+                                            .show()
+                                    } else {
+                                        Toast.makeText(context, "Tipo técnico ha sido actualizado", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                    navController.navigate(Screen.TiposTecnicoList)
+                                }
+                            } else {
+                                Toast.makeText(context, "Descripción no puede estar vacía", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     ) {
+                        if(uiState.TipoId == null || uiState.TipoId == 0){
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "save button"
+                            )
+                            Text(text = "Guardar")
+                        } else{
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "update button"
+                            )
+                            Text(text = "Actualizar")
+                        }
+                    }
+
+                    if(uiState.TipoId != null && uiState.TipoId != 0) {
 
                         OutlinedButton(
                             onClick = {
-                                Toast.makeText(context, "Casillas limpias", Toast.LENGTH_SHORT).show()
 
-                                onNewTipo()
+                                showDialog = true
+
                             }
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "new button"
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "delete button"
                             )
-                            Text(text = "Nuevo")
+                            Text(text = "Eliminar")
+
                         }
-
-                        OutlinedButton(
-                            onClick = {
-                                if (uiState.Descripcion.isNotEmpty()) {
-                                    onSaveTipo()
-                                    if(uiState.esDescripcionError.isNullOrEmpty()){
-                                        if(uiState.TipoId == 0 || uiState.TipoId == null){
-                                            Toast.makeText(context, "Tipo técnico ha sido creado", Toast.LENGTH_SHORT)
-                                                .show()
-                                        } else {
-                                            Toast.makeText(context, "Tipo técnico ha sido actualizado", Toast.LENGTH_SHORT)
-                                                .show()
-                                        }
-                                        navController.navigate(Screen.TiposTecnicoList)
-                                    }
-                                } else {
-                                    Toast.makeText(context, "Descripción no puede estar vacía", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        ) {
-                            if(uiState.TipoId == null || uiState.TipoId == 0){
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "save button"
-                                )
-                                Text(text = "Guardar")
-                            } else{
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "update button"
-                                )
-                                Text(text = "Actualizar")
-                            }
-                        }
-
-                        if(uiState.TipoId != null && uiState.TipoId != 0) {
-
-                            OutlinedButton(
-                                onClick = {
-
-                                    showDialog = true
-
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Warning,
-                                    contentDescription = "delete button"
-                                )
-                                Text(text = "Eliminar")
-
-                            }
-                            if (showDialog) {
-                                AlertDialog(
-                                    onDismissRequest = { showDialog = false },
-                                    title = {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(
-                                                imageVector = Icons.Default.Warning,
-                                                contentDescription = "Warning",
-                                                tint = Color(0xFFDAA504)
-                                            )
-
-                                            Spacer(modifier = Modifier.width(8.dp))
-
-                                            Text(
-                                                "Eliminar Tipo de Técnico",
-                                                style = MaterialTheme.typography.titleMedium
-                                            )
-                                        }
-                                    },
-                                    text = {
-                                        Text(
-                                            "¿Esta seguro de eliminar el tipo de técnico ?",
-                                            style = MaterialTheme.typography.bodyMedium
+                        if (showDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showDialog = false },
+                                title = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.Warning,
+                                            contentDescription = "Warning",
+                                            tint = Color(0xFFDAA504)
                                         )
-                                    },
-                                    confirmButton = {
-                                        TextButton(
-                                            onClick = {
-                                                showDialog = false
-                                                onDeleteTipo()
-                                                navController.navigate(Screen.TiposTecnicoList)
-                                            },
-                                            colors = ButtonDefaults.textButtonColors(
-                                                contentColor = Color.Red
-                                            )
-                                        ) {
-                                            Text("Confirmar")
-                                        }
-                                    },
-                                    dismissButton = {
-                                        TextButton(
-                                            onClick = { showDialog = false }
-                                        ) {
-                                            Text("Cancelar")
-                                        }
+
+                                        Spacer(modifier = Modifier.width(8.dp))
+
+                                        Text(
+                                            "Eliminar Tipo de Técnico",
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
                                     }
-                                )
-                            }
+                                },
+                                text = {
+                                    Text(
+                                        "¿Esta seguro de eliminar el tipo de técnico ?",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                },
+                                confirmButton = {
+                                    TextButton(
+                                        onClick = {
+                                            showDialog = false
+                                            onDeleteTipo()
+                                            navController.navigate(Screen.TiposTecnicoList)
+                                        },
+                                        colors = ButtonDefaults.textButtonColors(
+                                            contentColor = Color.Red
+                                        )
+                                    ) {
+                                        Text("Confirmar")
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(
+                                        onClick = { showDialog = false }
+                                    ) {
+                                        Text("Cancelar")
+                                    }
+                                }
+                            )
                         }
                     }
                 }
@@ -303,6 +269,7 @@ fun TipoBodyScreen(
         }
     }
 }
+
 
 
 @Preview

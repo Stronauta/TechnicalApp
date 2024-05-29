@@ -52,7 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.technical.R
-import com.example.technical.Screen
+import com.example.technical.presentation.navigation.Screen
 import com.example.technical.data.local.entities.TiposEntity
 import com.example.technical.ui.theme.TechnicalTheme
 import com.example.technical.presentation.componets.TopAppBar
@@ -90,187 +90,153 @@ fun TiposListBody(
     val scope = rememberCoroutineScope()
     var drawerState = rememberDrawerState(initialValue =  DrawerValue.Closed)
 
-    ModalNavigationDrawer(
-        drawerContent = {
-            ModalDrawerSheet(Modifier.requiredWidth(220.dp)) {
-                Text("Lista Tipo de Técnicos", modifier = Modifier.padding(16.dp))
-                HorizontalDivider()
 
-                NavigationDrawerItem(
-                    label = { Text(text = "Lista de tecnicos") },
-                    selected = false,
-                    onClick = { navController.navigate(Screen.TechnicalListScreen) },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.TwoTone.Person,
-                            contentDescription = "Lista de tecnicos"
-                        )
-                    }
-                )
-
-                NavigationDrawerItem(
-                    label = { Text(text = "Lista de tipos tecnicos") },
-                    selected = false,
-                    onClick = { navController.navigate(Screen.TiposTecnicoList) },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.TwoTone.Info,
-                            contentDescription = "Lista de tecnicos"
-                        )
-                    }
-                )
-
-
-            }
-        },
-        drawerState = drawerState
-    ) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            topBar = {
-                TopAppBar(
-                    title = "Tipos de Tecnicos",
-                    onDrawerClicked = {
-                        scope.launch {
-                            drawerState.open()
-                        }
-                    }
-                )
-            },
-            floatingActionButton = {
-                FloatingButton(onAddTipo)
-            }
-        ) { innerPadding ->
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-
-                ElevatedCard {
-                    Row {
-                        Text(
-                            text = "#",
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                            modifier = Modifier
-                                .weight(0.200f)
-                                .padding(horizontal = 20.dp)
-                        )
-
-                        Text(
-                            text = "Descripción",
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                            modifier = Modifier.weight(0.300f)
-
-                        )
-
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = "Tipos de Tecnicos",
+                onDrawerClicked = {
+                    scope.launch {
+                        drawerState.open()
                     }
                 }
+            )
+        },
+        floatingActionButton = {
+            FloatingButton(onAddTipo)
+        }
+    ) { innerPadding ->
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(tiposList) { tipos ->
-                        Column(
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+
+            ElevatedCard {
+                Row {
+                    Text(
+                        text = "#",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier
+                            .weight(0.200f)
+                            .padding(horizontal = 20.dp)
+                    )
+
+                    Text(
+                        text = "Descripción",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(0.300f)
+
+                    )
+
+                }
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(tiposList) { tipos ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .background(
+                                Color(0xFFFFFFFF)
+                            )
+                    ) {
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                                .background(
-                                    Color(0xFFFFFFFF)
-                                )
+                                .clickable { onTipoClickVer(tipos) }
+                                .padding(horizontal = 4.dp)
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onTipoClickVer(tipos) }
-                                    .padding(horizontal = 4.dp)
-                            ) {
-
-                                Text(
-                                    text = tipos.TipoId.toString() + ".  ",
-                                    modifier = Modifier
-                                        .weight(0.100f)
-                                        .padding(horizontal = 15.dp)
-                                )
-
-                                Text(
-                                    text = tipos.Descripción,
-                                    modifier = Modifier.weight(0.200f)
-                                )
-
-                                Icon(
-                                    painter = painterResource(id = R.drawable.icons8_ingeniero_80),
-                                    contentDescription = "money",
-                                )
-                            }
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(Color.Gray)
-                            )
-                        }
-                    }
-
-                }
-            }
-
-            if (showDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDialog = false },
-                    title = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Warning,
-                                contentDescription = "Warning",
-                                tint = Color(0xFFDAA504)
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
 
                             Text(
-                                "Eliminar Tipo de Técnico",
-                                style = MaterialTheme.typography.titleMedium
+                                text = tipos.TipoId.toString() + ".  ",
+                                modifier = Modifier
+                                    .weight(0.100f)
+                                    .padding(horizontal = 15.dp)
+                            )
+
+                            Text(
+                                text = tipos.Descripción,
+                                modifier = Modifier.weight(0.200f)
+                            )
+
+                            Icon(
+                                painter = painterResource(id = R.drawable.icons8_ingeniero_80),
+                                contentDescription = "money",
                             )
                         }
-                    },
-                    text = {
-                        Text(
-                            "¿Esta seguro de eliminar el tipo de técnico ?",
-                            style = MaterialTheme.typography.bodyMedium
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(Color.Gray)
                         )
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showDialog = false
-                                Toast.makeText(context, "Tipo de técnico eliminado", Toast.LENGTH_SHORT)
-                                    .show()
-                            },
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = Color.Red
-                            )
-                        ) {
-                            Text("Confirmar")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = { showDialog = false }
-                        ) {
-                            Text("Cancelar")
-                        }
                     }
-                )
+                }
+
             }
+        }
+
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Warning",
+                            tint = Color(0xFFDAA504)
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            "Eliminar Tipo de Técnico",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                },
+                text = {
+                    Text(
+                        "¿Esta seguro de eliminar el tipo de técnico ?",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDialog = false
+                            Toast.makeText(context, "Tipo de técnico eliminado", Toast.LENGTH_SHORT)
+                                .show()
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color.Red
+                        )
+                    ) {
+                        Text("Confirmar")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showDialog = false }
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+            )
         }
     }
 }
+
 
 
 @Preview
